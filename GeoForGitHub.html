@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Géocodeur">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#d6225a">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEFklEQVR4nO3dQbISQRBF0fyGK9GRW9L1uSUduRcHRCAhPGi6q7ryZd4z1fAXXbeSDvjIx68v3wN45NPqBSAv4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQB6fPqBaz07c/PLX/t99cfs1eS00e3/6R2YxBKq1C6xHGwiXsdKqkfx/AsbtVOpHIcU7O4VTWRmnGclsWteolUi2NJFrcqJVLqdY7lZSRZwyh14sizK3lWclCFp5W0m+H+FGM/OdKWEbnXtoV3HPmvfv4VPmEch8t1d1nnPdc4vK6412qvXOPACSzjcDyIjmv2i8PxKl/YrdwsDrvr+x+v9ZvFgTM5xeF17BSjR+EUB05mE4fRgXvJ5bHYxIHzebwrO/uoPXz7dMkPTaX151aeb8/1T12eBYYzmBwz9mbHqU2yjDN1vOfYtyXJN3KGdnEc2eNufWSPY+wwP767Y/tIfjeTPY6BRu1rn/nRJY6xO9qkjy5xYIfUcYx6Sp5x0Ef9m5lvO1LHgbWIA1L9OObdPJa/La0fB3YjDkjEAYk4IBEHJOKAVD+OeS9BZn5xc4j6cWA34oCUOo7Mb25lflNwlNRxYK0ucYwdHuVvRS+6xBHjdrRJGZE/jmy/0JvtF56nyh7HcEd2t8/MuGgXR+zd425lhMXHIWPaxmyc6mt/+kKtP0h93fUln7LPz2NyRLmtyj82ouc9BzayicPiqG3k8lhs4sD5iAOSUxwu0/g5o0fhFAdOZhaH0bF7yGv9ZnGE2/W9ZbdyvzhwGss47I5geK7ZMg6cwzUOr4Potdor1zjC54q7rPOecRyYzTuO/Icy/wqf8I4jcl/9zGvbwj4OzFMhjpwHNOeq3lIhjsi3E9nWs0+RODBDnTjyHNY8KzmoThwYrlQcGY5shjWMUiqOWL03lcqIenFgoIJxrDq+xcZGlIwjVuxTvTKiahwYomwcZx7lkmMjCscRZ+1Z1TKidhw4qHgcs4914bER5ePAEfXj4AsAd6sfR+T+0uHMWsSBfbrEMfagdxgb0SeOGLejTcqIVnHgXb3iOH7o+4yN6BYH3tIujiNHv9XYiIZxxN497lZG9IwDGzWN490x0HBsRNs44p397llGdI4DL7WOY8tIaDs2onkc8WrvO5cRxIEniEOOh+ZjI4gDTxBHxKMhwdgI4ri6rYEyLogDEnH8cxkYjI0rmy8dxvmYHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSH8BwbX90jm3KZgAAAAASUVORK5CYII=">
+<title>Géocodeur : carte et coordonnées GPS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--surface:#fff;--ink:#17202a;--muted:#5d6b78;--line:#dde3e8;--hover:#eef2f5;--accent:#d6225a;--err:#b3261e;--shadow:0 6px 24px rgba(15,28,36,.2);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface:#1a232b;--ink:#eaf0f4;--muted:#9aa9b5;--line:#2f3d48;--hover:#25313b;--err:#ff8a80;--shadow:0 6px 24px rgba(0,0,0,.55);color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--hover)}
+body{font:16px/1.4 -apple-system,"SF Pro Text","Segoe UI",system-ui,sans-serif;color:var(--ink);-webkit-text-size-adjust:100%}
+#map{position:fixed;inset:0;background:var(--hover)}
+.leaflet-container{font:inherit;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.leaflet-bottom{padding-bottom:env(safe-area-inset-bottom)}
+.leaflet-control-attribution{font-size:10px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.9) saturate(.8)}}
+
+#top{position:fixed;z-index:2000;left:12px;right:12px;top:max(12px,env(safe-area-inset-top));max-width:560px;margin:0 auto}
+#wrap{position:relative}
+#wrap svg{position:absolute;left:17px;top:16px;width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none}
+#q{width:100%;height:50px;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:25px;padding:0 16px 0 46px;box-shadow:var(--shadow);-webkit-appearance:none;appearance:none}
+#q::placeholder{color:var(--muted)}
+#box{margin:8px 0 0;padding:6px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);max-height:min(360px,55vh);overflow-y:auto}
+#box li{min-height:52px;padding:8px 12px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;justify-content:center}
+#box li.sel,#box li:active{background:var(--hover)}
+#box li.msg{cursor:default;color:var(--muted);font-size:.92rem}
+#box li.err{color:var(--err)}
+.s-label{font-size:.98rem;font-weight:550}
+.s-type{font-size:.8rem;color:var(--muted)}
+
+#sheet{position:fixed;z-index:2000;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;box-shadow:var(--shadow);padding:22px 20px max(20px,env(safe-area-inset-bottom));transform:translateY(110%);visibility:hidden;transition:transform .24s ease,visibility 0s .24s}
+#sheet.open{transform:none;visibility:visible;transition:transform .24s ease,visibility 0s}
+#st{margin:0;font-size:1.15rem;font-weight:650;letter-spacing:-.01em}
+#sl{margin:2px 0 14px;color:var(--muted);font-size:.9rem}
+.btn{display:block;width:100%;height:52px;border:0;border-radius:14px;font:inherit;font-weight:600;cursor:pointer;margin-top:8px}
+.primary{background:var(--accent);color:#fff}
+.plain{background:transparent;color:var(--muted)}
+.ghost{width:auto;height:44px;margin:0;padding:0 18px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.row span{display:block;font-size:.8rem;color:var(--muted)}
+.row b{font-size:1.4rem;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.pin svg{display:block;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));transform-origin:50% 100%;animation:drop .3s cubic-bezier(.3,1.5,.5,1)}
+@keyframes drop{from{transform:translateY(-22px);opacity:0}}
+#ring{position:fixed;z-index:1500;width:64px;height:64px;margin:-32px 0 0 -32px;border:3px solid var(--accent);border-radius:50%;pointer-events:none;opacity:0;animation:ring .4s linear .1s forwards}
+@keyframes ring{0%{opacity:0;transform:scale(1.6)}25%{opacity:1}100%{opacity:1;transform:scale(.5)}}
+#hint{position:fixed;z-index:1500;left:50%;transform:translateX(-50%);bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px));width:max-content;max-width:calc(100% - 32px);background:var(--surface);padding:12px 18px;border-radius:24px;box-shadow:var(--shadow);font-size:.92rem;text-align:center;pointer-events:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="top">
+  <form id="f" role="search">
+    <div id="wrap">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" role="combobox" aria-expanded="false" aria-controls="box" aria-autocomplete="list" enterkeyhint="search"
+             placeholder="Rechercher un lieu ou une adresse" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Lieu ou adresse">
+    </div>
+  </form>
+  <ul id="box" role="listbox" hidden></ul>
+</div>
+
+<p id="hint">Appuie longuement sur la carte pour poser un repère</p>
+
+<section id="sheet" aria-live="polite">
+  <h2 id="st"></h2>
+  <p id="sl"></p>
+  <div id="s1">
+    <button id="calc" class="btn primary" type="button">Calculer latitude et longitude</button>
+    <button id="cancel" class="btn plain" type="button">Annuler</button>
+  </div>
+  <div id="s2" hidden>
+    <div class="row"><div><span>Latitude</span><b id="lat"></b></div><button class="btn ghost" type="button" data-c="lat">Copier</button></div>
+    <div class="row"><div><span>Longitude</span><b id="lon"></b></div><button class="btn ghost" type="button" data-c="lon">Copier</button></div>
+    <button id="remove" class="btn plain" type="button">Retirer le repère</button>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const input = $("q"), box = $("box"), sheet = $("sheet"), hint = $("hint");
+
+/* ================= Carte ================= */
+const map = L.map("map", {zoomControl:false, worldCopyJump:true}).setView([46.6, 2.5], 6);
+map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom:19, detectRetina:true,
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+map.on("click", () => { hideBox(); input.blur(); });
+
+try{ if(localStorage.getItem("hintSeen")) hint.hidden = true; }catch(e){}
+
+/* ================= Repère + panneau ================= */
+const pinIcon = L.divIcon({
+  className:"pin", iconSize:[40,52], iconAnchor:[20,50],
+  html:'<svg width="40" height="52" viewBox="0 0 40 52" aria-hidden="true"><path d="M20 50C20 50 4 33 4 19a16 16 0 0 1 32 0c0 14-16 31-16 31z" fill="#d6225a" stroke="#fff" stroke-width="3"/><circle cx="20" cy="19" r="6" fill="#fff"/></svg>'
+});
+let pin = null, cur = null;
+const fmt = v => v.toFixed(6).replace("-", "\u2212");
+
+function placePin(ll, item){
+  if(pin) map.removeLayer(pin);
+  pin = L.marker(ll, {icon:pinIcon, keyboard:false, interactive:false}).addTo(map);
+  const w = ll.wrap();
+  cur = {lat:w.lat, lon:w.lng};
+  hint.hidden = true;
+  try{ localStorage.setItem("hintSeen", "1"); }catch(e){}
+
+  if(item){
+    const [head, ...rest] = item.label.split(", ");
+    $("st").textContent = head;
+    $("sl").textContent = [item.type, rest.join(", ")].filter(Boolean).join(" \u00b7 ").slice(0, 90);
+    showCoords();
+  }else{
+    $("st").textContent = "Point sélectionné";
+    $("sl").textContent = "Calcule ses coordonnées, ou annule.";
+    $("s1").hidden = false; $("s2").hidden = true;
+  }
+  sheet.classList.add("open");
+  requestAnimationFrame(() => map.panInside(ll, {
+    paddingTopLeft:[24, 90], paddingBottomRight:[24, sheet.offsetHeight + 24]
+  }));
+}
+function showCoords(){
+  $("lat").textContent = fmt(cur.lat);
+  $("lon").textContent = fmt(cur.lon);
+  $("s1").hidden = true; $("s2").hidden = false;
+}
+function removePin(){
+  if(pin){ map.removeLayer(pin); pin = null; }
+  cur = null; sheet.classList.remove("open");
+}
+$("calc").addEventListener("click", showCoords);
+$("cancel").addEventListener("click", removePin);
+$("remove").addEventListener("click", removePin);
+document.querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", async () => {
+  try{ await navigator.clipboard.writeText(cur[b.dataset.c].toFixed(6)); b.textContent = "Copié"; }
+  catch(e){ b.textContent = "Échec"; }
+  setTimeout(() => b.textContent = "Copier", 1500);
+}));
+
+/* ================= Appui long ================= */
+const LONG_MS = 500, TOL = 8;
+const mapEl = map.getContainer();
+let lp = null, ring = null;
+function cancelLP(){
+  if(lp){ clearTimeout(lp.t); lp = null; }
+  if(ring){ ring.remove(); ring = null; }
+}
+mapEl.addEventListener("pointerdown", e => {
+  if(!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)){ cancelLP(); return; }
+  cancelLP();
+  ring = document.createElement("div");
+  ring.id = "ring"; ring.style.left = e.clientX + "px"; ring.style.top = e.clientY + "px";
+  document.body.append(ring);
+  const ll = map.mouseEventToLatLng(e);
+  lp = {x:e.clientX, y:e.clientY, t:setTimeout(() => { cancelLP(); placePin(ll); }, LONG_MS)};
+});
+mapEl.addEventListener("pointermove", e => {
+  if(lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > TOL) cancelLP();
+});
+["pointerup","pointercancel","pointerleave"].forEach(t => mapEl.addEventListener(t, cancelLP));
+mapEl.addEventListener("contextmenu", e => e.preventDefault());
+map.on("movestart zoomstart", cancelLP);
+
+/* ================= Recherche ================= */
+const TYPES = {house:"Adresse", housenumber:"Adresse", street:"Rue", city:"Ville", town:"Ville",
+  municipality:"Ville", village:"Village", district:"Quartier", locality:"Lieu",
+  county:"Département", state:"Région", country:"Pays", other:"Lieu"};
+const ZOOM = {"Adresse":17, "Rue":16, "Quartier":14, "Village":14, "Ville":12, "Lieu":15,
+  "Département":9, "Région":7, "Pays":5};
+let timer = null, seq = 0, sugg = [], sel = -1, cache = {k:"", items:[]};
+
+async function searchPhoton(t){
+  let u = "https://photon.komoot.io/api/?limit=6&lang=fr&q=" + encodeURIComponent(t);
+  if(map.getZoom() >= 9){ const c = map.getCenter(); u += "&lat=" + c.lat.toFixed(4) + "&lon=" + c.lng.toFixed(4); }
+  const r = await fetch(u); if(!r.ok) throw new Error("Photon");
+  return (await r.json()).features.map(f => {
+    const p = f.properties || {};
+    const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+    const parts = [p.name, street, p.district, p.postcode, p.city, p.state, p.country]
+      .map(s => (s || "").toString().trim()).filter(Boolean);
+    return {label:[...new Set(parts)].join(", "), type:TYPES[p.type] || "Lieu",
+            lat:f.geometry.coordinates[1], lon:f.geometry.coordinates[0]};
+  });
+}
+async function searchBAN(t){
+  const r = await fetch("https://api-adresse.data.gouv.fr/search/?limit=5&q=" + encodeURIComponent(t));
+  if(!r.ok) throw new Error("BAN");
+  return (await r.json()).features.map(f => ({label:f.properties.label,
+    type:TYPES[f.properties.type] || "Adresse", lat:f.geometry.coordinates[1], lon:f.geometry.coordinates[0]}));
+}
+async function searchSirene(t){
+  const r = await fetch("https://recherche-entreprises.api.gouv.fr/search?per_page=5&q=" + encodeURIComponent(t));
+  if(!r.ok) throw new Error("Entreprises");
+  const out = [];
+  for(const e of ((await r.json()).results || [])){
+    const seen = new Set();
+    for(const s of [e.siege, ...(e.matching_etablissements || [])].filter(Boolean)){
+      const lat = parseFloat(s.latitude), lon = parseFloat(s.longitude);
+      if(isNaN(lat) || isNaN(lon) || seen.has(s.siret)) continue;
+      seen.add(s.siret); if(seen.size > 3) break;
+      out.push({label:(e.nom_complet || "Entreprise") + ", " + (s.adresse || "").trim(),
+        type:(s === e.siege ? "Entreprise (siège)" : "Entreprise (établissement)") + (s.etat_administratif === "F" ? ", fermé" : ""),
+        lat, lon});
+    }
+  }
+  return out;
+}
+function merge(...lists){
+  const out = [];
+  for(const l of lists) for(const x of l)
+    if(!out.some(y => Math.abs(y.lat - x.lat) < 0.0008 && Math.abs(y.lon - x.lon) < 0.0008)) out.push(x);
+  return out.slice(0, 8);
+}
+async function fetchAll(t){
+  const c = map.getZoom() >= 9 ? map.getCenter() : null;
+  const k = t + "|" + (c ? c.lat.toFixed(1) + "," + c.lng.toFixed(1) : "");
+  if(cache.k === k) return cache.items;
+  const [p, b, e] = await Promise.allSettled([searchPhoton(t), searchBAN(t), searchSirene(t)]);
+  if(p.status === "rejected" && b.status === "rejected" && e.status === "rejected") throw new Error("net");
+  const v = x => x.status === "fulfilled" ? x.value : [];
+  const items = /^\d/.test(t) ? merge(v(b), v(p), v(e)) : merge(v(p), v(e), v(b));
+  cache = {k, items};
+  return items;
+}
+
+function hideBox(){
+  box.hidden = true; box.replaceChildren(); sugg = []; sel = -1;
+  input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant");
+}
+function showMsg(text, isErr){
+  box.replaceChildren(); sugg = []; sel = -1;
+  const li = document.createElement("li");
+  li.className = "msg" + (isErr ? " err" : ""); li.textContent = text;
+  box.append(li); box.hidden = false;
+}
+function showBox(items){
+  box.replaceChildren(); sugg = items; sel = -1;
+  items.forEach((it, i) => {
+    const li = document.createElement("li");
+    li.id = "opt-" + i; li.setAttribute("role", "option");
+    const a = document.createElement("span"); a.className = "s-label"; a.textContent = it.label;
+    const b = document.createElement("span"); b.className = "s-type"; b.textContent = it.type;
+    li.append(a, b);
+    li.addEventListener("mousedown", e => e.preventDefault());
+    li.addEventListener("click", () => choose(i));
+    box.append(li);
+  });
+  box.hidden = false;
+  input.setAttribute("aria-expanded", "true");
+}
+function highlight(i){
+  [...box.children].forEach((li, k) => { li.classList.toggle("sel", k === i); li.setAttribute("aria-selected", String(k === i)); });
+  sel = i;
+  if(i >= 0){ input.setAttribute("aria-activedescendant", "opt-" + i); box.children[i].scrollIntoView({block:"nearest"}); }
+}
+function choose(i){
+  const it = sugg[i]; if(!it) return;
+  input.value = it.label; hideBox(); input.blur();
+  const ll = L.latLng(it.lat, it.lon);
+  const z = it.type.startsWith("Entreprise") ? 17 : (ZOOM[it.type] || 15);
+  map.flyTo(ll, z, {duration:1.1});
+  placePin(ll, it);
+}
+async function suggest(pick){
+  const t = input.value.trim();
+  if(t.length < 3){ hideBox(); return; }
+  const mine = ++seq;
+  try{
+    const items = await fetchAll(t);
+    if(mine !== seq) return;
+    if(!items.length){ showMsg("Aucune suggestion. Ajoute la ville ou l’adresse.", true); return; }
+    showBox(items);
+    if(pick) choose(0);
+  }catch(err){
+    if(mine === seq) showMsg("Les services de recherche ne répondent pas. Vérifie ta connexion.", true);
+  }
+}
+
+input.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => suggest(false), 300); });
+input.addEventListener("keydown", e => {
+  const n = sugg.length;
+  if(e.key === "ArrowDown" && n){ e.preventDefault(); highlight((sel + 1) % n); }
+  else if(e.key === "ArrowUp" && n){ e.preventDefault(); highlight((sel - 1 + n) % n); }
+  else if(e.key === "Escape"){ hideBox(); }
+});
+$("f").addEventListener("submit", e => {
+  e.preventDefault(); clearTimeout(timer);
+  if(sel >= 0) choose(sel); else if(sugg.length) choose(0); else suggest(true);
+});
+document.addEventListener("pointerdown", e => { if(!$("top").contains(e.target)) hideBox(); });
+</script>
+</body>
+</html>
